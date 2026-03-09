@@ -1,101 +1,65 @@
-### Status dos entregáveis (preenchido)
+# Otimização de Prompt com Avaliação no LangSmith
 
-- ✅ **Prompt otimizado criado e publicado:** `prompts/bug_to_user_story_v2.yml` e `jhbbortolotto/bug_to_user_story_v2`
-- ✅ **Scripts implementados e funcionais:** `src/pull_prompts.py`, `src/push_prompts.py`, `src/evaluate.py`
-- ✅ **Resultados finais ≥ 0.9 em todas as métricas** (detalhes na seção **Resultados Finais**)
-- ✅ **Tabela comparativa v1 vs v2** incluída neste README
-- ✅ **Seção Técnicas Aplicadas (Fase 2)** preenchida com racional das técnicas e critérios
-- ✅ **Seção Como Executar** preenchida neste README (ver seção abaixo)
+## A) Técnicas Aplicadas (Fase 2)
 
-### Links e evidências para submissão
+### 1) Quais técnicas avançadas foram escolhidas
 
-- **Prompt no LangSmith Hub:** https://smith.langchain.com/hub/jhbbortolotto/bug_to_user_story_v2
-- **Repositório no GitHub:** https://github.com/J-Henrique/mba-ia-pull-evaluation-prompt
+- **Role Prompting**
+- **Few-shot Learning**
+- **Skeleton of Thought (estruturado com checklist)**
 
----
+### 2) Justificativa de por que cada técnica foi escolhida
 
-## Como Executar
+- **Role Prompting:** garante consistência de tom profissional e foco em valor de negócio, elevando o Tone Score e melhorando a qualidade textual da User Story.
+- **Few-shot Learning:** reduz variação de formato entre respostas e aumenta aderência ao padrão esperado de saída (User Story + critérios testáveis).
+- **Skeleton of Thought:** força uma ordem de construção e validação interna para não omitir detalhes críticos do bug, impactando diretamente o Completeness Score.
 
-### Pré-requisitos
+### 3) Exemplos práticos de aplicação
 
-- Python 3.9+
-- Conta no LangSmith e API key configurada
-- Chave de provedor LLM (OpenAI ou Google)
-
-### Setup
-
-```bash
-python3 -m venv venv
-source venv/bin/activate  # No Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-### Execução do fluxo completo
-
-```bash
-# 1) Pull do prompt inicial
-python src/pull_prompts.py
-
-# 2) Editar prompt otimizado
-# arquivo: prompts/bug_to_user_story_v2.yml
-
-# 3) Push do prompt otimizado para o Hub
-python src/push_prompts.py
-
-# 4) Avaliação final
-python src/evaluate.py
-
-# 5) Testes de validação
-pytest tests/test_prompts.py
-```
+- **Role Prompting (aplicação):** no `system_prompt`, o modelo recebe a instrução explícita de atuar como *Senior Product Manager*.
+- **Few-shot Learning (aplicação):** foram adicionados exemplos de `Entrada (bug_report)` e `Saída esperada` com estrutura alvo completa.
+- **Skeleton of Thought (aplicação):** inclusão de checklist obrigatório de completude antes da resposta final (persona, contexto técnico, impacto, validação observável e prevenção de regressão).
 
 ---
 
-## Técnicas Aplicadas (Fase 2)
+## B) Resultados Finais
 
-### Técnicas escolhidas
+### 1) Link público do dashboard do LangSmith
 
-- **Role Prompting**: definição explícita de persona (Senior Product Manager) para manter tom profissional, empático e orientado a valor.
-- **Few-shot Learning**: inclusão de exemplos de entrada/saída com estrutura-alvo para estabilizar formato e qualidade dos critérios.
-- **Skeleton of Thought (estruturado)**: instruções internas de checklist e ordem de construção para garantir cobertura completa do bug antes da resposta final.
+- **Prompt publicado no Hub:** https://smith.langchain.com/hub/jhbbortolotto/bug_to_user_story_v2
 
-### Exemplos práticos de aplicação
+### 2) Screenshots das avaliações com notas mínimas de 0.9
 
-- **Role Prompting (aplicação prática):** o system prompt foi ajustado para instruir o modelo a responder como *Senior Product Manager*, priorizando linguagem colaborativa e foco em valor ao usuário em vez de descrição técnica fria do defeito.
-- **Few-shot Learning (aplicação prática):** foram adicionados exemplos de bug report convertidos para user stories no formato alvo, com critérios em Dado/Quando/Então, para reduzir variação de estrutura entre respostas.
-- **Skeleton of Thought (aplicação prática):** o prompt passou a exigir sequência de montagem (extrair contexto/impacto → redigir user story → gerar critérios testáveis → checar completude), evitando omissões de plataforma, condições e resultado observável.
+- **Configuração do provider/modelo:** [docs/screenshots/provider_model.png](docs/screenshots/provider_model.png)
+- **Resultados da avaliação (visão geral):** [docs/screenshots/results.png](docs/screenshots/results.png)
+- **Resultados finais (métricas ≥ 0.9):** [docs/screenshots/results_final.png](docs/screenshots/results_final.png)
 
-### O que é esperado em cada critério de avaliação
+![Configuração do provider/modelo](docs/screenshots/provider_model.png)
+![Resultados da avaliação (visão geral)](docs/screenshots/results.png)
+![Resultados finais (métricas ≥ 0.9)](docs/screenshots/results_final.png)
 
-- **Tone Score**: linguagem profissional, empática e positiva, com foco no valor para o usuário (não apenas “corrigir bug”).
-- **Acceptance Criteria Score**: critérios claros, testáveis, estruturados (Dado/Quando/Então), com cobertura adequada do cenário.
-- **User Story Format Score**: aderência ao formato “Como..., eu quero..., para que...”, com persona, ação e benefício explícitos.
-- **Completeness Score**: cobertura de todos os detalhes do bug (contexto técnico, impacto, plataforma, comportamento esperado e validações observáveis).
 
-### Por que o segundo prompt funcionou melhor que o primeiro
+### 3) Tabela comparativa: prompt ruim (v1) vs prompt otimizado (v2)
 
-Na primeira versão otimizada, já havia bom desempenho em tom, formato e critérios, mas ainda com lacunas de **completude** em alguns casos (especialmente quando o bug exigia mais contexto técnico e validação de resultado).
+| Iteração | Tone | Acceptance | Format | Completeness | Média | Status |
+|----------|------|------------|--------|--------------|-------|--------|
+| Prompt otimizado (1ª versão) | 0.98 | 0.96 | 0.99 | 0.80 | 0.9334 | ❌ Reprovado |
+| Prompt otimizado (2ª versão, refinada) | 0.98 | 0.97 | 0.98 | 0.91 | 0.9610 | ✅ Aprovado |
 
-No segundo ajuste, foram adicionadas regras explícitas para:
+### 4) Histórico da iteração e correção do prompt
 
-- Cobrir **todos os detalhes citados** no bug (plataforma, navegador, números e condições);
-- Refletir **impacto/severidade** no benefício e em critérios de aceitação;
-- Incluir validações de resultado **observável** (estado de UI, consistência de dados, prevenção de regressão);
-- Executar um **checklist de completude** antes de responder.
+Na **primeira iteração**, o prompt já apresentava bom desempenho em **Tone**, **Acceptance Criteria** e **User Story Format**, mas ficou abaixo do mínimo em **Completeness (0.80)**. O principal problema observado foi a omissão de detalhes específicos do bug em alguns casos (plataforma, contexto técnico e validações observáveis).
 
-Esse ajuste elevou especificamente o **Completeness Score**, mantendo os demais critérios altos.
+Com base nesse diagnóstico, fizemos a **correção do prompt** reforçando instruções para:
 
----
+- cobrir todos os detalhes explicitamente citados no bug;
+- refletir impacto/severidade no benefício da User Story;
+- incluir critérios de aceitação com validação observável e prevenção de regressão;
+- aplicar checklist interno de completude antes da resposta final.
 
-## Resultados Finais
+Após o ajuste, realizamos **nova execução da avaliação** no LangSmith com o prompt refinado e obtivemos melhora direta no critério crítico de completude (**0.80 → 0.91**), mantendo os demais critérios em alto nível. A comparação final entre as duas execuções confirma que a **2ª versão** atende ao requisito de notas mínimas **≥ 0.90** em todas as métricas.
 
-### Execução aprovada (prompt final)
-
-- **Prompt publicado:** `jhbbortolotto/bug_to_user_story_v2`
-- **Projeto no LangSmith:** `prompt-optimization-challenge-resolved`
-- **Status final:** ✅ **APROVADO**
-
-### Métricas finais
+### Métricas finais consolidadas (execução aprovada)
 
 - Tone Score: **0.98**
 - Acceptance Criteria Score: **0.97**
@@ -103,11 +67,40 @@ Esse ajuste elevou especificamente o **Completeness Score**, mantendo os demais 
 - Completeness Score: **0.91**
 - **Média Geral:** **0.9610**
 
-### Comparação de iterações (resumo)
+---
 
-| Iteração | Tone | Acceptance | Format | Completeness | Média | Status |
-|----------|------|------------|--------|--------------|-------|--------|
-| Prompt otimizado (1ª versão) | 0.98 | 0.96 | 0.99 | 0.80 | 0.9334 | ❌ Reprovado |
-| Prompt otimizado (2ª versão, refinada) | 0.98 | 0.97 | 0.98 | 0.91 | 0.9610 | ✅ Aprovado |
+## C) Como Executar
 
-> Observação: a 1ª versão já tinha média alta, mas reprova pela regra do desafio exigir **todas** as métricas ≥ 0.9.
+### 1) Pré-requisitos e dependências
+
+- Python 3.9+
+- Conta no LangSmith e chave `LANGSMITH_API_KEY`
+- Chave de provedor LLM (`OPENAI_API_KEY` ou `GOOGLE_API_KEY`)
+- Dependências Python listadas em `requirements.txt`
+
+### 2) Setup do ambiente
+
+```bash
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 3) Comandos para cada fase do projeto
+
+```bash
+# Fase 1: Pull do prompt base do Hub
+python src/pull_prompts.py
+
+# Fase 2: Refinar prompt otimizado localmente
+# arquivo: prompts/bug_to_user_story_v2.yml
+
+# Fase 3: Push do prompt otimizado para o Hub
+python src/push_prompts.py
+
+# Fase 4: Executar avaliação final
+python src/evaluate.py
+
+# Fase 5: Executar testes de validação
+pytest tests/test_prompts.py -q
+```
